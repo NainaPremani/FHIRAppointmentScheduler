@@ -1,84 +1,79 @@
+// src/app/components/AppointmentForm.tsx
+"use client";
 import React, { useState } from "react";
-import { createAppointment } from "../../../services/api";
 
-const AppointmentForm: React.FC = () => {
-  const [description, setDescription] = useState<string>("");
-  const [start, setStart] = useState<string>("");
-  const [end, setEnd] = useState<string>("");
-  const [doctorReference, setDoctorReference] = useState<string>("");
-  const [patientReference, setPatientReference] = useState<string>("");
+const AppointmentForm: React.FC<{
+  addAppointment: (appointment: any) => void;
+}> = ({ addAppointment }) => {
+  const [patientName, setPatientName] = useState("");
+  const [doctorName, setDoctorName] = useState("");
+  const [appointmentDate, setAppointmentDate] = useState("");
+  const [reason, setReason] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await createAppointment({
-        description,
-        start,
-        end,
-        doctorReference,
-        patientReference,
-      });
-      setDescription("");
-      setStart("");
-      setEnd("");
-      setDoctorReference("");
-      setPatientReference("");
-      // Optionally: refresh appointments list
-    } catch (error) {
-      console.error("Error creating appointment:", error);
-    }
+    addAppointment({
+      id: Math.random().toString(),
+      patientName,
+      doctorName,
+      appointmentDate,
+      reason,
+    });
+    setPatientName("");
+    setDoctorName("");
+    setAppointmentDate("");
+    setReason("");
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Schedule New Appointment</h2>
-      <div>
-        <label>Description:</label>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Start Time:</label>
-        <input
-          type="datetime-local"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>End Time:</label>
-        <input
-          type="datetime-local"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Doctor Reference:</label>
-        <input
-          type="text"
-          value={doctorReference}
-          onChange={(e) => setDoctorReference(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Patient Reference:</label>
-        <input
-          type="text"
-          value={patientReference}
-          onChange={(e) => setPatientReference(e.target.value)}
-          required
-        />
-      </div>
-      <button type="submit">Create Appointment</button>
-    </form>
+    <div className="card p-4 mb-4">
+      <h5 className="card-title">Schedule an Appointment</h5>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Patient Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={patientName}
+            onChange={(e) => setPatientName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Doctor Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={doctorName}
+            onChange={(e) => setDoctorName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Appointment Date</label>
+          <input
+            type="datetime-local"
+            className="form-control"
+            value={appointmentDate}
+            onChange={(e) => setAppointmentDate(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Reason</label>
+          <textarea
+            className="form-control"
+            rows={3}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            required
+          ></textarea>
+        </div>
+        <button type="submit" className="btn btn-primary">
+          Schedule Appointment
+        </button>
+      </form>
+    </div>
   );
 };
 

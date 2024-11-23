@@ -1,8 +1,8 @@
+// src/app/types/appointment.ts
 export interface Appointment {
-    description: string;
-    start: string;
-    end: string;
-    doctorReference: string;
-    patientReference: string;
-  }
-  
+  id: string;
+  patientName: string;
+  doctorName: string;
+  appointmentDate: string;
+  reason: string;
+}
