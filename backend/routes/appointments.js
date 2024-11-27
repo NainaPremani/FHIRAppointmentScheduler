@@ -1,67 +1,109 @@
 const express = require("express");
 const axios = require("axios");
-const { getAccessToken, refreshAccessToken } = require("../utils/tokenManager");
+const dotenv = require("dotenv");
 const router = express.Router();
+
+dotenv.config();
 
 const FHIR_SERVER_URL = process.env.FHIR_SERVER_URL;
 
-// Fetch appointments
+// Fetch all appointments
+
+// Fetch all appointments
 router.get("/", async (req, res) => {
   try {
-    let accessToken = getAccessToken();
+    const accessToken = req.headers["authorization"].split(" ")[1];
+    console.log("Access Token:", accessToken); // Debugging log
+    console.log("FHIR_SERVER_URL:", FHIR_SERVER_URL); // Debugging log
 
-    // If the token is expired, refresh it
-    try {
-      const response = await axios.get(`${FHIR_SERVER_URL}/Appointment`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      res.status(200).json(response.data);
-    } catch (err) {
-      // If there's an error with token expiration
-      if (err.response && err.response.status === 401) {
-        console.log("Token expired. Refreshing...");
-        accessToken = await refreshAccessToken(); // Refresh token if expired
-        const response = await axios.get(`${FHIR_SERVER_URL}/Appointment`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-        res.status(200).json(response.data); // Send data after token refresh
-      } else {
-        console.error("Error fetching appointments:", err.message);
-        res.status(500).json({ message: "Error fetching appointments" });
-      }
-    }
+    // Fetch all appointments
+    const response = await axios.get(`${FHIR_SERVER_URL}/Appointment`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const appointments = response.data.entry || [];
+    console.log("Fetched Appointments:", appointments); // Debugging log
+
+    res.status(200).json(appointments);
   } catch (err) {
     console.error("Error fetching appointments:", err.message);
-    res.status(500).json({ message: "Error fetching appointments" });
+    res
+      .status(500)
+      .json({ message: "Error fetching appointments", error: err.message });
   }
 });
 
-// Create a new appointment
+// Endpoint to fetch all available doctors
+router.get("/available-doctors", async (req, res) => {
+  const accessToken = req.headers["authorization"].split(" ")[1]; // Bearer token
+
+  try {
+    const response = await axios.get(`${FHIR_SERVER_URL}/Practitioner`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const practitioners = response.data.entry || [];
+
+    // Extract unique doctor IDs and names
+    const availableDoctors = practitioners.map((practitioner) => {
+      return {
+        id: practitioner.resource.id,
+        name: practitioner.resource.name[0].text,
+      };
+    });
+
+    if (availableDoctors.length === 0) {
+      return res.status(404).json({ message: "No available doctors found" });
+    }
+
+    res.status(200).json(availableDoctors);
+  } catch (err) {
+    console.error("Error fetching available doctors:", err.message);
+    res.status(500).json({
+      message: "Error fetching available doctors",
+      error: err.message,
+    });
+  }
+});
 
 router.post("/", async (req, res) => {
-  const { patientReference, doctorReference, appointmentDate, reason } =
-    req.body;
+  const { reason, specialty, appointmentDate, patientID } = req.body;
 
-  // Validate required fields
-  if (!patientReference || !doctorReference || !appointmentDate || !reason) {
+  if (!specialty || !appointmentDate || !reason || !patientID) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const appointmentData = {
-    resourceType: "Appointment",
-    status: "booked",
-    description: reason,
-    start: appointmentDate,
-    participant: [
-      { actor: { reference: doctorReference }, status: "accepted" },
-      { actor: { reference: patientReference }, status: "accepted" },
-    ],
-  };
+  const accessToken = req.headers["authorization"].split(" ")[1]; // Bearer token
 
   try {
-    const accessToken = getAccessToken();
+    const doctorResponse = await axios.get(`${FHIR_SERVER_URL}/Practitioner`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
-    // Make the POST request to SMART FHIR server
+    const practitioners = doctorResponse.data.entry || [];
+    const availableDoctors = practitioners.map(
+      (practitioner) => practitioner.resource.id
+    );
+
+    const assignedDoctorID =
+      availableDoctors[Math.floor(Math.random() * availableDoctors.length)];
+
+    const appointmentData = {
+      resourceType: "Appointment",
+      status: "booked", // Ensure appointment status is 'booked'
+      description: reason,
+      start: appointmentDate,
+      participant: [
+        {
+          actor: { reference: `Practitioner/${assignedDoctorID}` },
+          status: "accepted",
+        },
+        { actor: { reference: `Patient/${patientID}` }, status: "accepted" },
+      ],
+    };
+
+    console.log("Appointment Data to POST:", appointmentData); // Debugging log
+
     const response = await axios.post(
       `${FHIR_SERVER_URL}/Appointment`,
       appointmentData,
@@ -73,117 +115,75 @@ router.post("/", async (req, res) => {
       }
     );
 
-    res.status(201).json(response.data); // Return the created appointment data
+    console.log("FHIR Server Response:", response.data); // Debugging log
+
+    const appointment = response.data;
+
+    // Fetch doctor details
+    const doctorDetailsResponse = await axios.get(
+      `${FHIR_SERVER_URL}/Practitioner/${assignedDoctorID}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+
+    const doctorDetails = doctorDetailsResponse.data;
+
+    // Construct response similar to GET response
+    const responseData = {
+      fullUrl: `${FHIR_SERVER_URL}/Appointment/${appointment.id}`,
+      resource: {
+        ...appointment,
+        identifier: [
+          {
+            type: { text: "AMR" },
+            value: "34423-23432-13",
+          },
+        ],
+        serviceType: [
+          { text: "Consultas Médicas | Medicina Geral e Familiar" },
+          { text: "Consultas Médicas | Urologia" },
+        ],
+        created: new Date().toISOString(), // Include the created field
+        comment: "Cra", // Example comment
+        doctorDetails,
+      },
+      search: {
+        mode: "match",
+      },
+      response: {
+        status: "201 Created",
+        etag: `W/"${appointment.meta.versionId}"`,
+      },
+    };
+
+    res.status(201).json(responseData);
   } catch (err) {
     console.error("Error creating appointment:", err.message);
-    // Log the full error to the console for debugging
-    if (err.response) {
-      console.error("Error details:", err.response.data);
-      return res.status(500).json({
-        message: "Error creating appointment",
-        error: err.response.data,
-      });
-    } else {
-      console.error("Error without response:", err.message);
-      return res
-        .status(500)
-        .json({ message: "Error creating appointment", error: err.message });
-    }
+    res
+      .status(500)
+      .json({ message: "Error creating appointment", error: err.message });
   }
 });
 
-// Cancel an appointment
-// router.delete("/:id", async (req, res) => {
-//   const { id } = req.params;
-
-//   if (!id) {
-//     return res.status(400).json({ message: "Appointment ID is required" });
-//   }
-
-//   try {
-//     let accessToken = getAccessToken();
-
-//     // If the token is expired, refresh it
-//     try {
-//       const response = await axios.get(`${FHIR_SERVER_URL}/Appointment/${id}`, {
-//         headers: { Authorization: `Bearer ${accessToken}` },
-//       });
-
-//       const updatedAppointment = { ...response.data, status: "cancelled" };
-//       await axios.put(
-//         `${FHIR_SERVER_URL}/Appointment/${id}`,
-//         updatedAppointment,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${accessToken}`,
-//             "Content-Type": "application/json",
-//           },
-//         }
-//       );
-
-//       res.status(200).json({ message: "Appointment cancelled successfully" });
-//     } catch (err) {
-//       if (err.response && err.response.status === 401) {
-//         console.log("Token expired. Refreshing...");
-//         accessToken = await refreshAccessToken(); // Refresh token if expired
-//         const response = await axios.get(
-//           `${FHIR_SERVER_URL}/Appointment/${id}`,
-//           {
-//             headers: { Authorization: `Bearer ${accessToken}` },
-//           }
-//         );
-
-//         const updatedAppointment = { ...response.data, status: "cancelled" };
-//         await axios.put(
-//           `${FHIR_SERVER_URL}/Appointment/${id}`,
-//           updatedAppointment,
-//           {
-//             headers: {
-//               Authorization: `Bearer ${accessToken}`,
-//               "Content-Type": "application/json",
-//             },
-//           }
-//         );
-
-//         res.status(200).json({ message: "Appointment cancelled successfully" });
-//       } else {
-//         console.error("Error cancelling appointment:", err.message);
-//         res.status(500).json({ message: "Error cancelling appointment" });
-//       }
-//     }
-//   } catch (err) {
-//     console.error("Error cancelling appointment:", err.message);
-//     res.status(500).json({ message: "Error cancelling appointment" });
-//   }
-// });
-// Route to cancel an appointment
 router.delete("/:id", async (req, res) => {
-  const appointmentId = req.params.id; // Get the appointment ID from the URL
+  const appointmentId = req.params.id;
 
   if (!appointmentId) {
     return res.status(400).json({ message: "Appointment ID is required" });
   }
 
   try {
-    const accessToken = getAccessToken(); // Fetch the access token
-
-    // Fetch the current appointment to modify it
+    const accessToken = req.headers["authorization"].split(" ")[1]; // Bearer token
     const response = await axios.get(
       `${FHIR_SERVER_URL}/Appointment/${appointmentId}`,
       {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       }
     );
 
-    // Update the status to "cancelled"
-    const updatedAppointment = {
-      ...response.data,
-      status: "cancelled", // Changing the appointment status to cancelled
-    };
+    const updatedAppointment = { ...response.data, status: "cancelled" };
 
-    // Send the update to the FHIR server
     await axios.put(
       `${FHIR_SERVER_URL}/Appointment/${appointmentId}`,
       updatedAppointment,
@@ -197,10 +197,10 @@ router.delete("/:id", async (req, res) => {
 
     res.status(200).json({ message: "Appointment cancelled successfully" });
   } catch (err) {
-    console.error("Error cancelling appointment:", err.message);
+    console.error("Error canceling appointment:", err.message);
     res
       .status(500)
-      .json({ message: "Error cancelling appointment", error: err.message });
+      .json({ message: "Error canceling appointment", error: err.message });
   }
 });
 
