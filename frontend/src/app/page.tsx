@@ -1,25 +1,29 @@
-// src/app/page.tsx
-import React from "react";
-import { Inter } from "next/font/google"; // If you're using Google fonts
-import "../../styles/globals.css"; // Global styles (if you have any)
+"use client";
 
-const inter = Inter({ subsets: ["latin"] });
+import Login from "@/components/loginComponent";
+import styles from "./page.module.css";
 
-const Page = ({ children }: { children: React.ReactNode }) => {
+export default function Home() {
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>SMART on FHIR Appointment Scheduler</title>
-      </head>
-      <body className={inter.className}>
-        <div className="app-container">
-          {children} {/* Render child components */}
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Healthcare Appointment Scheduler</h1>
+        <p className={styles.subtitle}>
+          Easily manage your healthcare appointments.
+        </p>
+      </header>
+      <main className={styles.main}>
+        <Login />
+      </main>
+      <footer className={styles.footer}>
+        <p>
+          &copy; 2024 Healthcare Appointment Scheduler. All rights reserved.
+        </p>
+        <div className={styles.footerLinks}>
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/terms-of-service">Terms of Service</a>
         </div>
-      </body>
-    </html>
+      </footer>
+    </div>
   );
-};
-
-export default Page;
+}

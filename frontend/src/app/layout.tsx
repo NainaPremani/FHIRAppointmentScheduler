@@ -1,16 +1,27 @@
-// src/app/layout.tsx
+import type { Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 
-import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
+import "./globals.css";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <>
-      <Navbar />
-      <main>{children}</main>
-      <Footer />
-    </>
-  );
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+});
+
+export const metadata: Metadata = {
+  title: "Appointment Scheduling APP",
+  description: "SMART on FHIR Appointment Scheduling App",
 };
 
-export default Layout;
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      {/* <body className={`${geistSans.variable} ${geistMono.variable}`}> */}
+      <body className={dmSans.className}>{children}</body>
+    </html>
+  );
+}

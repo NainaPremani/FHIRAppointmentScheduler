@@ -1,33 +1,15 @@
-/* Import Bootstrap first */
-@import "bootstrap/dist/css/bootstrap.min.css"; /* Local import */
+@import "bootstrap/dist/css/bootstrap.min.css";
 
-/* Optional: Import any additional CSS files here */
-
-/* Define color variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-/* Dark mode styling */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    /* --background: #0a0a0a; */
     --foreground: #ededed;
   }
-}
-
-/* Custom styles */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-.app-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 html,
@@ -37,9 +19,9 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  font-family: "Arial", sans-serif;
-  background-color: #f8f9fa;
+  /* color: var(--foreground); */
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

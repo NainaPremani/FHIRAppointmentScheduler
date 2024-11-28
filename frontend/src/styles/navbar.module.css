@@ -1,0 +1,55 @@
+/* Styles for the Navbar component */
+.navbar {
+  background-color: #004085; /* Navbar background color */
+  padding: 10px 20px;
+}
+
+.navbar-brand {
+  font-size: 1.5rem; /* Brand font size */
+  color: #ffffff; /* Brand text color */
+}
+
+.nav-link {
+  color: #ffffff; /* Link text color */
+  margin: 0 10px; /* Spacing between links */
+  font-size: 1rem; /* Link font size */
+}
+
+.nav-link:hover {
+  color: #e0e0e0; /* Hover effect on links */
+}
+
+.nav-link.logout {
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.nav-link.logout:hover {
+  color: #f8d7da;
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.25rem; /* Adjust font size for smaller screens */
+  }
+
+  .nav-link {
+    font-size: 0.875rem; /* Adjust link font size for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand {
+    font-size: 1rem; /* Further adjust font size for smallest screens */
+  }
+
+  .nav-link {
+    font-size: 0.75rem; /* Further adjust link font size for smallest screens */
+    margin: 5px 0; /* Stack links vertically on smallest screens */
+  }
+
+  .navbar-collapse {
+    flex-direction: column;
+  }
+}

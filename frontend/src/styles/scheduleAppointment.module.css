@@ -1,0 +1,131 @@
+/* Date Picker Input */
+
+.react-datepicker-wrapper input {
+  width: 100%;
+  padding: 20px 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.react-datepicker-wrapper input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Date Picker Popper */
+.react-datepicker-popper {
+  z-index: 9999; /* Ensure it appears above other elements */
+}
+
+/* Calendar Styling */
+.react-datepicker {
+  font-size: 14px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header */
+.react-datepicker__header {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Day Highlighting */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+}
+
+/* Time List Styling */
+.react-datepicker__time-container {
+  border-left: 1px solid #ccc;
+}
+
+.react-datepicker__time-list-item {
+  padding: 8px;
+  font-size: 14px;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.appointmentForm {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.appointmentForm .form-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #004085;
+}
+
+.appointmentForm .form-control {
+  margin-bottom: 1rem;
+}
+
+.appointmentForm .btn-primary {
+  background-color: #004085;
+  border-color: #004085;
+}
+
+.appointmentForm h1 {
+  color: #004085;
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+@media (max-width: 768px) {
+  .appointmentForm {
+    padding: 15px;
+  }
+
+  .appointmentForm .form-label {
+    font-size: 0.9rem;
+  }
+
+  .appointmentForm .btn-primary {
+    font-size: 0.9rem;
+  }
+
+  .appointmentForm h1 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointmentForm {
+    padding: 10px;
+  }
+
+  .appointmentForm .form-label {
+    font-size: 0.8rem;
+  }
+
+  .appointmentForm .btn-primary {
+    font-size: 0.8rem;
+  }
+
+  .appointmentForm h1 {
+    font-size: 1.25rem;
+  }
+}

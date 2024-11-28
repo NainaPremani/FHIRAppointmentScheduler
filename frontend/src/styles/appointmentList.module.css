@@ -1,0 +1,82 @@
+/* appointmentList.module.css */
+
+.appointmentCard {
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+}
+
+.appointmentCard:hover {
+  transform: translateY(-5px);
+}
+
+.appointmentCard .card-body {
+  padding: 25px;
+}
+
+.appointmentCard .card-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #343a40;
+}
+
+.appointmentCard .card-subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+.appointmentCard .card-text {
+  margin-top: 15px;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.appointmentCard .btn-danger {
+  background-color: #e74c3c;
+  border: none;
+  font-weight: bold;
+}
+
+.appointmentCard .btn-danger:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .appointmentCard .card-body {
+    padding: 20px;
+  }
+
+  .appointmentCard .card-title {
+    font-size: 1.2rem;
+  }
+
+  .appointmentCard .card-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .appointmentCard .card-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointmentCard .card-body {
+    padding: 15px;
+  }
+
+  .appointmentCard .card-title {
+    font-size: 1.1rem;
+  }
+
+  .appointmentCard .card-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .appointmentCard .card-text {
+    font-size: 0.85rem;
+  }
+}
